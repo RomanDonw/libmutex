@@ -1,0 +1,7 @@
+/build
+/.vscode
+/.vs
+/out
+
+*.code-workspace
+CMakeSettings.json
