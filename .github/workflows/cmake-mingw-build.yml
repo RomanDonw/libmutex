@@ -1,0 +1,48 @@
+name: Windows x86-64 MSYS2 MinGW UCRT64
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-make
+
+      - name: Configure and Build
+        shell: msys2 {0}
+        run: |
+          mkdir build
+          cd build
+
+          cmake -S .. -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=ON
+          mingw32-make
+          
+          cmake -S .. -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=OFF
+          mingw32-make
+
+          cd ..
+
+          mkdir bin
+          mv build/*.dll bin/
+
+          mkdir lib
+          mv build/*.a lib/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: win64-mingw-ucrt64
+          path: |
+            bin/*.dll
+            lib/*.a
+            include/*.h
