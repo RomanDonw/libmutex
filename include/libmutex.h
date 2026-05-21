@@ -61,6 +61,7 @@ LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_init(mutex_t **mutex);
 LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_destroy(mutex_t *mutex);
 
 LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_lock(mutex_t *mutex);
+LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_trylock(mutex_t *mutex);
 LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_unlock(mutex_t *mutex);
 
 #ifdef __cplusplus

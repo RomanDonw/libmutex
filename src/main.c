@@ -37,19 +37,17 @@ mutexerror_t mutex_destroy(mutex_t *mutex)
     #ifdef LIBMUTEX_OS_WINDOWS
         DeleteCriticalSection(mutex->desc);
     #else
+        int err = pthread_mutex_destroy(&mutex->desc);
+        if (err) switch (err)
         {
-            int err = pthread_mutex_destroy(&mutex->desc);
-            if (err) switch (err)
-            {
-                case EBUSY:
-                    return MUTEXERROR_BUSY;
+            case EBUSY:
+                return MUTEXERROR_BUSY;
 
-                default:
-                    #ifdef LIBMUTEX_DEBUG
-                        UNHANDLEDSYSERRALERT(err, "mutex_destroy");
-                    #endif
-                    return MUTEXERROR_INTRSYSERR;
-            }
+            default:
+                #ifdef LIBMUTEX_DEBUG
+                    UNHANDLEDSYSERRALERT(err, "mutex_destroy");
+                #endif
+                return MUTEXERROR_INTRSYSERR;
         }
     #endif
     
@@ -62,25 +60,47 @@ mutexerror_t mutex_lock(mutex_t *mutex)
     #ifdef LIBMUTEX_OS_WINDOWS
         EnterCriticalSection(mutex->desc);
     #else
+        int err = pthread_mutex_lock(&mutex->desc);
+        if (err) switch (err)
         {
-            int err = pthread_mutex_lock(&mutex->desc);
-            if (err) switch (err)
-            {
-                case EINVAL:
-                    return MUTEXERROR_INCORRINIT;
+            case EINVAL:
+                return MUTEXERROR_INCORRINIT;
 
-                case EDEADLK:
-                    return MUTEXERROR_DEADLOCK;
+            case EDEADLK:
+                return MUTEXERROR_DEADLOCK;
 
-                default:
-                    #ifdef LIBMUTEX_DEBUG
-                        UNHANDLEDSYSERRALERT(err, "mutex_lock");
-                    #endif
-                    return MUTEXERROR_INTRSYSERR;
-            }
+            default:
+                #ifdef LIBMUTEX_DEBUG
+                    UNHANDLEDSYSERRALERT(err, "mutex_lock");
+                #endif
+                return MUTEXERROR_INTRSYSERR;
         }
     #endif
     return MUTEXERROR_SUCCESS;
+}
+
+mutexerror_t mutex_trylock(mutex_t *mutex)
+{
+    #ifdef LIBMUTEX_OS_WINDOWS
+        return TryEnterCriticalSection(&mutex->desc) ? MUTEXERROR_SUCCESS : MUTEXERROR_BUSY;
+    #else
+        int err = pthread_mutex_lock(&mutex->desc);
+        if (err) switch (err)
+        {
+            case EINVAL:
+                return MUTEXERROR_INCORRINIT;
+
+            case EBUSY:
+                return MUTEXERROR_BUSY;
+
+            default:
+                #ifdef LIBMUTEX_DEBUG
+                    UNHANDLEDSYSERRALERT(err, "mutex_lock");
+                #endif
+                return MUTEXERROR_INTRSYSERR;
+        }
+        return MUTEXERROR_SUCCESS;
+    #endif
 }
 
 mutexerror_t mutex_unlock(mutex_t *mutex)
@@ -88,22 +108,20 @@ mutexerror_t mutex_unlock(mutex_t *mutex)
     #ifdef LIBMUTEX_OS_WINDOWS
         LeaveCriticalSection(mutex->desc);
     #else
+        int err = pthread_mutex_unlock(&mutex->desc);
+        if (err) switch (err)
         {
-            int err = pthread_mutex_unlock(&mutex->desc);
-            if (err) switch (err)
-            {
-                case EINVAL:
-                    return MUTEXERROR_INCORRINIT;
+            case EINVAL:
+                return MUTEXERROR_INCORRINIT;
 
-                case EPERM:
-                    return MUTEXERROR_PERMDENIED;
+            case EPERM:
+                return MUTEXERROR_PERMDENIED;
 
-                default:
-                    #ifdef LIBMUTEX_DEBUG
-                        UNHANDLEDSYSERRALERT(err, "mutex_unlock");
-                    #endif
-                    return MUTEXERROR_INTRSYSERR;
-            }
+            default:
+                #ifdef LIBMUTEX_DEBUG
+                    UNHANDLEDSYSERRALERT(err, "mutex_unlock");
+                #endif
+                return MUTEXERROR_INTRSYSERR;
         }
     #endif
     return MUTEXERROR_SUCCESS;
