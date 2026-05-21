@@ -24,11 +24,11 @@ jobs:
           mkdir build
           cd build
 
-          cmake -S .. -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=ON
-          mingw32-make
+          cmake -S .. -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$MSYSTEM_PREFIX
+          mingw32-make install
           
-          cmake -S .. -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=OFF
-          mingw32-make
+          cmake -S .. -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=$MSYSTEM_PREFIX
+          mingw32-make install
 
           cd ..
 
