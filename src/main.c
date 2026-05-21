@@ -25,6 +25,8 @@ struct mutex_s { MUTEXDESC desc; };
 
 mutexerror_t mutex_init(mutex_t **mutex)
 {
+    if (!mutex) return MUTEXERROR_INVAL;
+
     mutex_t *ret = libmutex_malloc(sizeof(mutex_t));
     if (!ret) return MUTEXERROR_NOMEM;
 
@@ -68,6 +70,8 @@ mutexerror_t mutex_init(mutex_t **mutex)
 
 mutexerror_t mutex_destroy(mutex_t *mutex)
 {
+    if (!mutex) return MUTEXERROR_INVAL;
+
     #ifdef LIBMUTEX_OS_WINDOWS
         DeleteCriticalSection(mutex->desc);
     #else
@@ -91,6 +95,8 @@ mutexerror_t mutex_destroy(mutex_t *mutex)
 
 mutexerror_t mutex_lock(mutex_t *mutex)
 {
+    if (!mutex) return MUTEXERROR_INVAL;
+
     #ifdef LIBMUTEX_OS_WINDOWS
         EnterCriticalSection(mutex->desc);
     #else
@@ -98,7 +104,7 @@ mutexerror_t mutex_lock(mutex_t *mutex)
         if (err) switch (err)
         {
             case EINVAL:
-                return MUTEXERROR_INCORRINIT;
+                return MUTEXERROR_INVAL;
 
             case EDEADLK:
                 return MUTEXERROR_DEADLOCK;
@@ -115,6 +121,8 @@ mutexerror_t mutex_lock(mutex_t *mutex)
 
 mutexerror_t mutex_trylock(mutex_t *mutex)
 {
+    if (!mutex) return MUTEXERROR_INVAL;
+
     #ifdef LIBMUTEX_OS_WINDOWS
         return TryEnterCriticalSection(&mutex->desc) ? MUTEXERROR_SUCCESS : MUTEXERROR_BUSY;
     #else
@@ -122,7 +130,7 @@ mutexerror_t mutex_trylock(mutex_t *mutex)
         if (err) switch (err)
         {
             case EINVAL:
-                return MUTEXERROR_INCORRINIT;
+                return MUTEXERROR_INVAL;
 
             case EBUSY:
                 return MUTEXERROR_BUSY;
@@ -139,6 +147,8 @@ mutexerror_t mutex_trylock(mutex_t *mutex)
 
 mutexerror_t mutex_unlock(mutex_t *mutex)
 {
+    if (!mutex) return MUTEXERROR_INVAL;
+
     #ifdef LIBMUTEX_OS_WINDOWS
         LeaveCriticalSection(mutex->desc);
     #else
@@ -146,7 +156,7 @@ mutexerror_t mutex_unlock(mutex_t *mutex)
         if (err) switch (err)
         {
             case EINVAL:
-                return MUTEXERROR_INCORRINIT;
+                return MUTEXERROR_INVAL;
 
             case EPERM:
                 return MUTEXERROR_PERMDENIED;

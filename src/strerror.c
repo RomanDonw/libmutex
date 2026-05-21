@@ -18,8 +18,8 @@ const char *mutex_strerror(mutexerror_t err)
         case MUTEXERROR_DEADLOCK:
             return "mutex deadlock";
 
-        case MUTEXERROR_INCORRINIT:
-            return "mutex incorrected or not initialized";
+        case MUTEXERROR_INVAL:
+            return "incorrect argument value";
 
         case MUTEXERROR_PERMDENIED:
             return "permission denied";
