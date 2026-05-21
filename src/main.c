@@ -73,7 +73,7 @@ mutexerror_t mutex_destroy(mutex_t *mutex)
     if (!mutex) return MUTEXERROR_INVAL;
 
     #ifdef LIBMUTEX_OS_WINDOWS
-        DeleteCriticalSection(mutex->desc);
+        DeleteCriticalSection(&mutex->desc);
     #else
         int err = pthread_mutex_destroy(&mutex->desc);
         if (err) switch (err)
@@ -98,7 +98,7 @@ mutexerror_t mutex_lock(mutex_t *mutex)
     if (!mutex) return MUTEXERROR_INVAL;
 
     #ifdef LIBMUTEX_OS_WINDOWS
-        EnterCriticalSection(mutex->desc);
+        EnterCriticalSection(&mutex->desc);
     #else
         int err = pthread_mutex_lock(&mutex->desc);
         if (err) switch (err)
@@ -150,7 +150,7 @@ mutexerror_t mutex_unlock(mutex_t *mutex)
     if (!mutex) return MUTEXERROR_INVAL;
 
     #ifdef LIBMUTEX_OS_WINDOWS
-        LeaveCriticalSection(mutex->desc);
+        LeaveCriticalSection(&mutex->desc);
     #else
         int err = pthread_mutex_unlock(&mutex->desc);
         if (err) switch (err)
