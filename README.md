@@ -63,7 +63,7 @@ If you using CMake in your project, add `libmutex` by same method or with using 
 
 ```cmake
 find_package(libmutex REQUIRED)
-target_link_libraries(<target> PRIVATE libmutex::socket)
+target_link_libraries(<target> PRIVATE libmutex::mutex)
 ```
 
 This will fully automatily setup <ins>libmutex</ins> for your project. By default CMake will use static version of <ins>libmutex</ins>, so if you want to use dynamic version of this library, set `BUILD_SHARED_LIBS` flag in your CMake config command prompt to `ON`.
