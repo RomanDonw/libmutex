@@ -36,8 +36,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PUBLIC "ws2_32")
+if(UNIX)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE _GNU_SOURCE _XOPEN_SOURCE=500)
+    target_link_libraries(${PROJECT_NAME} INTERFACE pthread)
 endif()
 
 # setup correct installation process
