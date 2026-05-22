@@ -14,9 +14,6 @@ const char *mutex_strerror(mutexerror_t err)
     {
         case MUTEXERROR_SUCCESS:
             return "success";
-
-        case MUTEXERROR_NOMEM:
-            return "out of memory";
         
         case MUTEXERROR_BUSY:
             return "mutex busy";
