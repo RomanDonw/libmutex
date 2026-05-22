@@ -67,3 +67,8 @@ target_link_libraries(<target> PRIVATE libmutex::mutex)
 ```
 
 This will fully automatily setup <ins>libmutex</ins> for your project. By default CMake will use static version of <ins>libmutex</ins>, so if you want to use dynamic version of this library, set `BUILD_SHARED_LIBS` flag in your CMake config command prompt to `ON`.
+
+## Debugging & Troubleshooting
+
+### Got MUTEXERROR_INTRSYSERR
+Rebuild library with CMake `-DDEBUG=ON` flag, rebuild & rerun you program to again got this error. You will see message in <ins>stderr</ins> like *Unhandled system error...*. Copy this message & open an issue on this repo.
