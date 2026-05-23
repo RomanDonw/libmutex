@@ -43,7 +43,7 @@ Requirements: `GCC`, `make`, `CMake`
 ### Windows
 
 #### MinGW UCRT64
-Just run `mingw32-make install`. Library will be installed to your MSYS2 system path (specified in -DCMAKE_INSTALL_PATH CMake option; `/ucrt64` in this example).
+Just run `mingw32-make install`. Library will be installed to your MSYS2 system path (specified in `-DCMAKE_INSTALL_PATH` CMake option; `/ucrt64` in this example).
 
 ### Linux (UNIX)
 Also just run `sudo make install`. Library will be installed to your system.
