@@ -38,16 +38,6 @@
     #define LIBMUTEX_API __attribute__((visibility("default")))
 #endif
 
-#ifdef LIBMUTEX_OS_WINDOWS
-    #include <windows.h>
-
-    typedef CRITICAL_SECTION mutex_t;
-#else
-    #include <pthread.h>
-
-    typedef pthread_mutex_t mutex_t;
-#endif
-
 #define LIBMUTEX_ABI
 
 #include <stdbool.h>
@@ -57,6 +47,7 @@ enum mutexerror_e
 {
     MUTEXERROR_SUCCESS = 0,
 
+    MUTEXERROR_NOMEM,
     MUTEXERROR_INVAL,
     MUTEXERROR_DEADLOCK,
     MUTEXERROR_BUSY,
@@ -64,9 +55,14 @@ enum mutexerror_e
     MUTEXERROR_INTRSYSERR
 } typedef mutexerror_t;
 
+typedef struct mutex_s mutex_t;
+
+LIBMUTEX_API extern void *(*libmutex_malloc)(size_t); // = malloc from stdlib.h by default.
+LIBMUTEX_API extern void (*libmutex_free)(void *); // = free from stdlib.h by default.
+
 LIBMUTEX_API const char * LIBMUTEX_ABI mutex_strerror(mutexerror_t err);
 
-LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_init(mutex_t *mutex);
+LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_init(mutex_t **mutex);
 LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_destroy(mutex_t *mutex);
 
 LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_lock(mutex_t *mutex);
