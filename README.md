@@ -70,5 +70,5 @@ This will fully automatily setup <ins>libmutex</ins> for your project. By defaul
 
 ## Debugging & Troubleshooting
 
-### Got MUTEXERROR_INTRSYSERR
+### Got `MUTEXERROR_INTRSYSERR`
 Rebuild library with CMake `-DDEBUG=ON` flag, rebuild & rerun you program to again got this error. You will see message in <ins>stderr</ins> like *Unhandled system error...*. Copy this message & open an issue on this repo.
