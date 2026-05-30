@@ -33,7 +33,7 @@
 
 struct mutex_s { MUTEXDESC desc; };
 
-mutexerror_t mutex_init(mutex_t **mutex)
+mutexerror_t mutex_create(mutex_t **mutex)
 {
     if (!mutex) return MUTEXERROR_INVAL;
 
@@ -66,7 +66,7 @@ mutexerror_t mutex_init(mutex_t **mutex)
                     return MUTEXERROR_NOMEM;
 
                 default:
-                    UNHANDLEDSYSERRALERT(err, "mutex_init");
+                    UNHANDLEDSYSERRALERT(err, "mutex_create");
                     return MUTEXERROR_INTRSYSERR;
             }
         }

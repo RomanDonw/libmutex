@@ -62,7 +62,7 @@ LIBMUTEX_API extern void (*libmutex_free)(void *); // = free from stdlib.h by de
 
 LIBMUTEX_API const char * LIBMUTEX_ABI mutex_strerror(mutexerror_t err);
 
-LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_init(mutex_t **mutex);
+LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_create(mutex_t **mutex);
 LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_destroy(mutex_t *mutex);
 
 LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_lock(mutex_t *mutex);
