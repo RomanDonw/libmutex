@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 
 # ========== SETTINGS ==========
-project(mutex VERSION 0.2.0 LANGUAGES C)
+project(mutex VERSION 0.2.1 LANGUAGES C)
 
 set(VERSION_CHECK_METHOD SameMajorVersion)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)

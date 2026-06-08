@@ -176,11 +176,11 @@ mutexerror_t mutex_unlock(mutex_t *mutex)
 void mutex_lock_ne(mutex_t *mutex)
 {
     mutexerror_t err = mutex_lock(mutex);
-    if (err != MUTEXERROR_SUCCESS) fault("caused error in 'mutex_lock_ne' function: %s.", mutex_strerror(err));
+    if (err != MUTEXERROR_SUCCESS) fault("caused error in 'mutex_lock_ne' function: %s", mutex_strerror(err));
 }
 
 void mutex_unlock_ne(mutex_t *mutex)
 {
     mutexerror_t err = mutex_unlock(mutex);
-    if (err != MUTEXERROR_SUCCESS) fault("caused error in 'mutex_unlock_ne' function: %s.", mutex_strerror(err));
+    if (err != MUTEXERROR_SUCCESS) fault("caused error in 'mutex_unlock_ne' function: %s", mutex_strerror(err));
 }

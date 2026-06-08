@@ -13,7 +13,7 @@ void fault(const char *msgformat, ...)
 
     fprintf(stderr, "[%s]: ", LIBRARYSTRNAME);
     vfprintf(stderr, msgformat, args);
-    fputs(" Application terminated.", stderr);
+    fputs(". Application terminated.", stderr);
 
     va_end(args);
     abort();
