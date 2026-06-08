@@ -69,6 +69,14 @@ LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_lock(mutex_t *mutex);
 LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_trylock(mutex_t *mutex);
 LIBMUTEX_API mutexerror_t LIBMUTEX_ABI mutex_unlock(mutex_t *mutex);
 
+/*
+    [mutex_*_ne]: outputs message to 'stderr' on error and aborts program through abort() function from <stdlib.h>.
+        *'ne' postfix means "no error", because function(-s) returns 'void'.
+*/
+
+LIBMUTEX_API void LIBMUTEX_ABI mutex_lock_ne(mutex_t *mutex);
+LIBMUTEX_API void LIBMUTEX_ABI mutex_unlock_ne(mutex_t *mutex);
+
 #ifdef __cplusplus
     }
 #endif
