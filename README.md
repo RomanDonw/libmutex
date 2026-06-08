@@ -3,7 +3,7 @@
 <!-- ========================================================================================================================================================== -->
 
 ## Overview
-This library provides simple, but very useful platform-independent system`s mutexes API for C99 standard.
+This library provides simple, but very useful platform-independent system's mutexes API for C99 standard.
 
 <!-- ========================================================================================================================================================== -->
 
