@@ -4,15 +4,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const char *LIBRARYSTRNAME = "libmutex";
+static void __logerr(const char *msgformat, va_list args)
+{
+    fprintf(stderr, "[libmutex]: ");
+    vfprintf(stderr, msgformat, args);
+}
 
-void fault(const char *msgformat, ...)
+#ifdef LIBMUTEX_DEBUG
+    void __libmutex_logdbgerr(const char *msgformat, ...)
+    {
+        va_list args;
+        va_start(args, msgformat);
+        
+        __logerr(msgformat, args);
+        fputs(".", stderr);
+
+        va_end(args);
+    }
+#endif
+
+void __libmutex_fault(const char *msgformat, ...)
 {
     va_list args;
     va_start(args, msgformat);
 
-    fprintf(stderr, "[%s]: ", LIBRARYSTRNAME);
-    vfprintf(stderr, msgformat, args);
+    __logerr(msgformat, args);
     fputs(". Application terminated.", stderr);
 
     va_end(args);

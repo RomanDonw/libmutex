@@ -25,13 +25,7 @@
 
 #include "util.h"
 
-#ifdef LIBMUTEX_DEBUG
-    #include <stdio.h>
-
-    #define UNHANDLEDSYSERRALERT(syserrcode, funcname) fprintf(stderr, "[%s]: unhandled system error %i in function %s.\n", LIBRARYSTRNAME, syserrcode, funcname)
-#else
-    #define UNHANDLEDSYSERRALERT(syserrcode, funcname)
-#endif
+#define UNHANDLEDSYSERRALERT(syserrcode, funcname) LOGDBGERR("got unhandled system error %i in function '%s'", syserrcode, funcname)
 
 struct mutex_s { MUTEXDESC desc; };
 
@@ -68,7 +62,7 @@ mutexerror_t mutex_create(mutex_t **mutex)
                     return MUTEXERROR_NOMEM;
 
                 default:
-                    UNHANDLEDSYSERRALERT(err, "mutex_create");
+                    
                     return MUTEXERROR_INTRSYSERR;
             }
         }
@@ -176,11 +170,11 @@ mutexerror_t mutex_unlock(mutex_t *mutex)
 void mutex_lock_ne(mutex_t *mutex)
 {
     mutexerror_t err = mutex_lock(mutex);
-    if (err != MUTEXERROR_SUCCESS) fault("caused error in 'mutex_lock_ne' function: %s", mutex_strerror(err));
+    if (err != MUTEXERROR_SUCCESS) __libmutex_fault("caused error in 'mutex_lock_ne' function: %s", mutex_strerror(err));
 }
 
 void mutex_unlock_ne(mutex_t *mutex)
 {
     mutexerror_t err = mutex_unlock(mutex);
-    if (err != MUTEXERROR_SUCCESS) fault("caused error in 'mutex_unlock_ne' function: %s", mutex_strerror(err));
+    if (err != MUTEXERROR_SUCCESS) __libmutex_fault("caused error in 'mutex_unlock_ne' function: %s", mutex_strerror(err));
 }

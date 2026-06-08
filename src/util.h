@@ -1,8 +1,13 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-extern const char *LIBRARYSTRNAME;
+#ifdef LIBMUTEX_DEBUG
+    void __libmutex_logdbgerr(const char *msgformat, ...);
+    #define LOGDBGERR(msgformat, ...) (__libmutex_logdbgerr(msgformat, __VA_ARGS__))
+#else
+    #define LOGDBGERR(msgformat, ...)
+#endif
 
-void fault(const char *msgformat, ...);
+void __libmutex_fault(const char *msgformat, ...);
 
 #endif
