@@ -9,5 +9,6 @@
 #endif
 
 void __libmutex_fault(const char *msgformat, ...);
+#define fault(...) (__libmutex_fault(__VA_ARGS__))
 
 #endif
