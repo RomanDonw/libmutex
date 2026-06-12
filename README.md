@@ -19,7 +19,7 @@ Requirements: `Visual Studio`, `CMake`
 3. Build library and tests through Viusal Studio GUI, using hotkey (Ctrl + Shift + B by default) or terminal.
 
 #### MinGW UCRT64
-Requirements: `MSYS2 UCRT64`, `MinGW UCRT64`, `make`, `CMake`.
+Requirements: `MSYS2 UCRT64`, `MinGW UCRT64`, `make` (`mingw32-make`), `CMake`.
 
 1. Run **MSYS2 UCRT64 environment** (<ins>**recommended**</ins>). Install all requirements if you haven't it.
 2. Clone this repo and go to repository root folder.
