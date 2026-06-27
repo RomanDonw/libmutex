@@ -4,17 +4,10 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-#include "libmutex.h"
+#include "libnthread.h"
 
-#ifdef LIBMUTEX_OS_WINDOWS
-    #include <windows.h>
-
-    #define MUTEXDESC CRITICAL_SECTION
-#else
-    #include <pthread.h>
+#ifndef LIBMUTEX_OS_WINDOWS
     #include <errno.h>
-
-    #define MUTEXDESC pthread_mutex_t
 
     #if defined(__USE_UNIX98) || defined(_XOPEN_SOURCE) && _XOPEN_SOURCE >= 500
         #define PTHREAD_MUTEXTYPE_RECURSIVE PTHREAD_MUTEX_RECURSIVE
@@ -27,7 +20,10 @@
 
 #define UNHANDLEDSYSERRALERT(syserrcode, funcname) LOGDBGERR("got unhandled system error %i in function '%s'", syserrcode, funcname)
 
-struct mutex_s { MUTEXDESC desc; };
+struct mutex_s
+{
+    NTHREAD_MUTEXDESCRIPTOR desc;
+}
 
 mutexerror_t mutex_create(mutex_t **mutex)
 {
@@ -165,16 +161,4 @@ mutexerror_t mutex_unlock(mutex_t *mutex)
         }
     #endif
     return MUTEXERROR_SUCCESS;
-}
-
-void mutex_lock_ne(mutex_t *mutex)
-{
-    mutexerror_t err = mutex_lock(mutex);
-    if (err != MUTEXERROR_SUCCESS) fault("caused error in 'mutex_lock_ne' function: %s", mutex_strerror(err));
-}
-
-void mutex_unlock_ne(mutex_t *mutex)
-{
-    mutexerror_t err = mutex_unlock(mutex);
-    if (err != MUTEXERROR_SUCCESS) fault("caused error in 'mutex_unlock_ne' function: %s", mutex_strerror(err));
 }

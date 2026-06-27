@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 
 # ========== SETTINGS ==========
-project(mutex VERSION 0.2.3 LANGUAGES C)
+project(nthread VERSION 0.3.0 LANGUAGES C)
 
 set(VERSION_CHECK_METHOD SameMajorVersion)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
@@ -24,9 +24,9 @@ add_library(${PROJECT_NAME} ${SOURCES})
 unset(SOURCES)
 
 target_compile_definitions(${PROJECT_NAME}
-    PRIVATE $<$<BOOL:${DEBUG}>:LIBMUTEX_DEBUG>
-    PRIVATE $<$<BOOL:${BUILD_SHARED_LIBS}>:LIBMUTEX_EXPORT>
-    PUBLIC $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:LIBMUTEX_STATIC>
+    PRIVATE $<$<BOOL:${DEBUG}>:LIBNTHREAD_DEBUG>
+    PRIVATE $<$<BOOL:${BUILD_SHARED_LIBS}>:LIBNTHREAD_EXPORT>
+    PUBLIC $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:LIBNTHREAD_STATIC>
 )
 
 # setup includes & required libs
@@ -44,7 +44,7 @@ endif()
 # setup correct installation process
 
 install(TARGETS ${PROJECT_NAME}
-    EXPORT libmutexTargets
+    EXPORT libnthreadTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -54,8 +54,8 @@ install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/configure.cmake")
 
-install(EXPORT libmutexTargets
-    FILE libmutexTargets.cmake
-    NAMESPACE libmutex::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmutex
+install(EXPORT libnthreadTargets
+    FILE libnthreadTargets.cmake
+    NAMESPACE libnthread::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libnthread
 )
