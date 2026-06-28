@@ -212,11 +212,6 @@ LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mu
 
 #endif
 
-#define nthread_atomicbool_get(...) (nthread_atomicbool_load(__VA_ARGS__))
-#define nthread_atomicbool_set(...) (nthread_atomicbool_store(__VA_ARGS__))
-#define nthread_atomicbool_flag_set(atomicboolptr) (nthread_atomicbool_store((atomicboolptr), true))
-#define nthread_atomicbool_flag_clear(atomicboolptr) (nthread_atomicbool_store((atomicboolptr), false))
-
 // unsafe API:
 
 #if defined(LIBNTHREAD_ALLOWUNSAFEACCESS) || defined(LIBNTHREAD_EXPORT)
