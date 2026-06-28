@@ -69,7 +69,11 @@
     #error This compiler doesn't support atomic operations, or compiler atomic operations doesn't supported by this library.
 #endif
 
-// general:
+/*
+    #########################
+             General
+    #########################
+*/
 
 enum NThreadError
 {
@@ -113,11 +117,19 @@ LIBNTHREAD_API bool LIBNTHREAD_ABI libnthread_initialized(void); // can be acces
 LIBNTHREAD_API NThreadError LIBNTHREAD_ABI libnthread_startup(const LibNThreadStartupOptions *options);
 LIBNTHREAD_API NThreadError LIBNTHREAD_ABI libnthread_cleanup(void);
 
-// threads:
+/*
+    #########################
+             Threads
+    #########################
+*/
 
 typedef struct NThread NThread;
 
-// mutexes:
+/*
+    #########################
+             Mutexes
+    #########################
+*/
 
 typedef struct NThreadMutex NThreadMutex;
 
@@ -128,7 +140,21 @@ LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_lock(NThreadMutex *mute
 LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_trylock(NThreadMutex *mutex);
 LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mutex);
 
-// atomics:
+/*
+    #########################
+            Unsafe API
+    #########################
+*/
+
+#if defined(LIBNTHREAD_ALLOWUNSAFEACCESS) || defined(LIBNTHREAD_EXPORT)
+    LIBNTHREAD_API NTHREAD_MUTEXDESCRIPTOR LIBNTHREAD_ABI nthread_mutex_gethandle(const NThreadMutex *mutex);
+#endif
+
+/*
+    #########################
+           Atomic Bool
+    #########################
+*/
 
 /*
     ..._cmpxhg function postfixes info:
@@ -210,12 +236,6 @@ LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mu
     static inline bool nthread_atomicbool_cmpxchgp(NThreadAtomicBool *variable, bool *expected, bool desired)
     { return __atomic_compare_exchange_n(variable, expected, desired, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST); }
 
-#endif
-
-// unsafe API:
-
-#if defined(LIBNTHREAD_ALLOWUNSAFEACCESS) || defined(LIBNTHREAD_EXPORT)
-    LIBNTHREAD_API NTHREAD_MUTEXDESCRIPTOR LIBNTHREAD_ABI nthread_mutex_gethandle(const NThreadMutex *mutex);
 #endif
 
 #ifdef __cplusplus
