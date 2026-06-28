@@ -129,6 +129,7 @@ LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mu
 #if defined(LIBNTHREAD_USEC11ATOMICS)
 
     typedef atomic_bool NThreadAtomicBool;
+    #define NTHREAD_ATOMICBOOLINIT(value) (ATOMIC_VAR_INIT((bool)(value)))
 
     static inline bool nthread_atomicbool_load(NThreadAtomicBool *variable) { return atomic_load(variable); }
     static inline void nthread_atomicbool_store(NThreadAtomicBool *variable, bool desired) { atomic_store(variable, desired); }
@@ -138,6 +139,7 @@ LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mu
 #elif defined(LIBNTHREAD_USEMSVCATOMICS)
 
     typedef volatile char NThreadAtomicBool;
+    #define NTHREAD_ATOMICBOOLINIT(value) ((bool)(value))
 
     static inline bool nthread_atomicbool_load(NThreadAtomicBool *variable)
     {
@@ -162,6 +164,7 @@ LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mu
 #elif defined(LIBNTHREAD_USEGCCORCLANGATOMICS)
 
     typedef volatile bool NThreadAtomicBool;
+    #define NTHREAD_ATOMICBOOLINIT(value) ((bool)(value))
 
     static inline bool nthread_atomicbool_load(NThreadAtomicBool *variable) { return __atomic_load_n(variable, __ATOMIC_SEQ_CST); }
     static inline void nthread_atomicbool_store(NThreadAtomicBool *variable, bool desired) { __atomic_store_n(variable, desired, __ATOMIC_SEQ_CST); }
