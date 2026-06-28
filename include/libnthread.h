@@ -73,11 +73,13 @@
 
 enum NThreadError
 {
-    NThreadError_Succes = 0,
+    NThreadError_Success = 0,
 
     NThreadError_InternalUnknownError,
     NThreadError_NotInitialized,
-    NThreadError_AlreadyInitializaed
+    NThreadError_AlreadyInitialized,
+
+    NThreadError_OperationInProgress
 
     /*
     NTHREADERROR_SUCCESS = 0,
@@ -103,7 +105,9 @@ struct LibNThreadStartupOptions
     const LibNThreadAllocators *allocators;
 } typedef LibNThreadStartupOptions;
 
-LIBNTHREAD_API const char * LIBNTHREAD_ABI nthread_strerror(NThreadError err); // can be accessed without library initialization.
+#define LIBNTHREADSTARTUPOPTIONS_DEFAULTINIT (LibNThreadStartupOptions){0}
+
+LIBNTHREAD_API const unsigned char * LIBNTHREAD_ABI nthread_strerror(NThreadError err); // can be accessed without library initialization.
 
 LIBNTHREAD_API bool LIBNTHREAD_ABI libnthread_initialized(void); // can be accessed without library initialization.
 LIBNTHREAD_API NThreadError LIBNTHREAD_ABI libnthread_startup(const LibNThreadStartupOptions *options);
@@ -126,6 +130,13 @@ LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mu
 
 // atomics:
 
+/*
+    ..._cmpxhg function postfixes info:
+        p - pointer (*var, *expected, desired).    if *var changed returns 'true', otherwise returns 'false' and stores *var to *expected.
+        t - try (*var, expected, desired).         if *var changed returns 'true', otherwise returns 'false'.
+        v - (old) value (*var, expected, desired). returns *var before performing operation.
+*/
+
 #if defined(LIBNTHREAD_USEC11ATOMICS)
 
     typedef atomic_bool NThreadAtomicBool;
@@ -133,12 +144,19 @@ LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mu
 
     static inline bool nthread_atomicbool_load(NThreadAtomicBool *variable) { return atomic_load(variable); }
     static inline void nthread_atomicbool_store(NThreadAtomicBool *variable, bool desired) { atomic_store(variable, desired); }
-    static inline bool nthread_atomicbool_cmpxchg(NThreadAtomicBool *variable, bool *expected, bool desired)
+
+    static inline bool nthread_atomicbool_cmpxchgv(NThreadAtomicBool *variable, bool expected, bool desired)
+    { bool exponstackcopy = expected; atomic_compare_exchange_strong(variable, &exponstackcopy, desired); return exponstackcopy; }
+
+    static inline bool nthread_atomicbool_cmpxchgt(NThreadAtomicBool *variable, bool expected, bool desired)
+    { bool exponstackcopy = expected; return atomic_compare_exchange_strong(variable, &exponstackcopy, desired); }
+
+    static inline bool nthread_atomicbool_cmpxchgp(NThreadAtomicBool *variable, bool *expected, bool desired)
     { return atomic_compare_exchange_strong(variable, expected, desired); }
 
 #elif defined(LIBNTHREAD_USEMSVCATOMICS)
 
-    typedef volatile char NThreadAtomicBool;
+    typedef volatile unsigned char NThreadAtomicBool;
     #define NTHREAD_ATOMICBOOLINIT(value) ((bool)(value))
 
     static inline bool nthread_atomicbool_load(NThreadAtomicBool *variable)
@@ -146,18 +164,25 @@ LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mu
         #ifdef LIBNTHREAD_USEDMSVCONARM
             return _InterlockedExchangeAdd8(variable, 0);
         #else
-            bool ret = *variable;
+            register bool ret = *variable;
             _ReadWriteBarrier();
             return ret;
         #endif
     }
     static inline void nthread_atomicbool_store(NThreadAtomicBool *variable, bool desired) { _InterlockedExchange8(variable, desired); }
-    static inline bool nthread_atomicbool_cmpxchg(NThreadAtomicBool *variable, bool *expected, bool desired)
+
+    static inline bool nthread_atomicbool_cmpxchgv(NThreadAtomicBool *variable, bool expected, bool desired)
+    { return _InterlockedCompareExchange8(variable, (unsigned char)desired, (unsigned char)expected); }
+
+    static inline bool nthread_atomicbool_cmpxchgt(NThreadAtomicBool *variable, bool expected, bool desired)
+    { return nthread_atomicbool_cmpxchgv(variable, expected, desired) == expected; }
+
+    static inline bool nthread_atomicbool_cmpxchgp(NThreadAtomicBool *variable, bool *expected, bool desired)
     {
-        //char expectedval = *expected;
-        char oldexpected = _InterlockedCompareExchange8(variable, (char)desired, (char)(*expected));
-        if (oldexpected == ((char)*expected)) return true;
-        *expected = oldexpected;
+        register bool expval = *expected;
+        register bool oldvarval = nthread_atomicbool_cmpxchgv(variable, expval, desired);
+        if (oldvarval == expval) return true;
+        *expected = oldvarval;
         return false;
     }
 
@@ -168,13 +193,29 @@ LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mu
 
     static inline bool nthread_atomicbool_load(NThreadAtomicBool *variable) { return __atomic_load_n(variable, __ATOMIC_SEQ_CST); }
     static inline void nthread_atomicbool_store(NThreadAtomicBool *variable, bool desired) { __atomic_store_n(variable, desired, __ATOMIC_SEQ_CST); }
-    static inline bool nthread_atomicbool_cmpxchg(NThreadAtomicBool *variable, bool *expected, bool desired)
+
+    static inline bool nthread_atomicbool_cmpxchgv(NThreadAtomicBool *variable, bool expected, bool desired)
+    {
+        bool exponstackcopy = expected;
+        __atomic_compare_exchange_n(variable, &exponstackcopy, desired, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+        return exponstackcopy;
+    }
+
+    static inline bool nthread_atomicbool_cmpxchgt(NThreadAtomicBool *variable, bool expected, bool desired)
+    {
+        bool exponstackcopy = expected;
+        return __atomic_compare_exchange_n(variable, &exponstackcopy, desired, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    }
+
+    static inline bool nthread_atomicbool_cmpxchgp(NThreadAtomicBool *variable, bool *expected, bool desired)
     { return __atomic_compare_exchange_n(variable, expected, desired, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST); }
 
 #endif
 
 #define nthread_atomicbool_get(...) (nthread_atomicbool_load(__VA_ARGS__))
 #define nthread_atomicbool_set(...) (nthread_atomicbool_store(__VA_ARGS__))
+#define nthread_atomicbool_flag_set(atomicboolptr) (nthread_atomicbool_store((atomicboolptr), true))
+#define nthread_atomicbool_flag_clear(atomicboolptr) (nthread_atomicbool_store((atomicboolptr), false))
 
 // unsafe API:
 
