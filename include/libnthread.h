@@ -14,13 +14,7 @@
 
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64)
     #define LIBNTHREAD_OS_WINDOWS
-#endif
 
-#if defined(_MSC_VER) && (defined(_M_ARM) || defined(_M_ARM64))
-    #define LIBNTHREAD_USEDMSVCONARM
-#endif
-
-#ifdef LIBNTHREAD_OS_WINDOWS
     #ifdef LIBNTHREAD_STATIC
         #ifdef _MSC_VER
             #define LIBNTHREAD_API
@@ -39,6 +33,10 @@
         #endif
     #endif
 
+    #if defined(_MSC_VER) && (defined(_M_ARM) || defined(_M_ARM64))
+        #define LIBNTHREAD_USEDMSVCONARM
+    #endif
+
     #include <windows.h>
 
     typedef CRITICAL_SECTION NTHREAD_MUTEXDESCRIPTOR;
@@ -50,18 +48,17 @@
     typedef pthread_mutex_t NTHREAD_MUTEXDESCRIPTOR;
 #endif
 
-#define LIBNTHREAD_ABI
-
+#include <libncore.h>
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <libncore.h>
+
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_ATOMICS__)
     #define LIBNTHREAD_USEC11ATOMICS
-
     #include <stdatomic.h>
 #elif defined(_MSC_VER)
     #define LIBNTHREAD_USEMSVCATOMICS
-
     #include <intrin.h>
 #elif defined(__GNUC__) || defined(__clang__)
     #define LIBNTHREAD_USEGCCORCLANGATOMICS
@@ -69,53 +66,28 @@
     #error This compiler doesn't support atomic operations, or compiler atomic operations doesn't supported by this library.
 #endif
 
+#define LIBNTHREAD_ABI
+
 /*
     #########################
              General
     #########################
 */
 
-enum NThreadError
-{
-    NThreadError_Success = 0,
-
-    NThreadError_InternalUnknownError,
-    NThreadError_NotInitialized,
-    NThreadError_AlreadyInitialized,
-
-    NThreadError_OperationInProgress
-
-    /*
-    NTHREADERROR_SUCCESS = 0,
-
-    NTHREADERROR_NOMEM,
-    NTHREADERROR_INVAL,
-    NTHREADERROR_DEADLOCK,
-    NTHREADERROR_BUSY,
-    NTHREADERROR_PERMDENIED,
-    NTHREADERROR_INTRSYSERR
-    */
-} typedef NThreadError;
-
-struct LibNThreadAllocators
-{
-    void *(*malloc)(size_t);
-    void *(*realloc)(void *, size_t); // must be safe for NULL.
-    void (*free)(void *); // must be safe for NULL.
-} typedef LibNThreadAllocators;
-
 struct LibNThreadStartupOptions
 {
-    const LibNThreadAllocators *allocators;
+    const NMemoryAllocators *allocators; // can be NULL.
+    NPanicHandler *panichandler; // can be NULL.
+    NAlertHandler *alerthandler; // can be NULL.
 } typedef LibNThreadStartupOptions;
 
 #define LIBNTHREADSTARTUPOPTIONS_DEFAULTINIT (LibNThreadStartupOptions){0}
 
-LIBNTHREAD_API const unsigned char * LIBNTHREAD_ABI nthread_strerror(NThreadError err); // can be accessed without library initialization.
+extern const char *LIBNTHREAD_MODULENAME;
 
 LIBNTHREAD_API bool LIBNTHREAD_ABI libnthread_initialized(void); // can be accessed without library initialization.
-LIBNTHREAD_API NThreadError LIBNTHREAD_ABI libnthread_startup(const LibNThreadStartupOptions *options);
-LIBNTHREAD_API NThreadError LIBNTHREAD_ABI libnthread_cleanup(void);
+LIBNTHREAD_API NError LIBNTHREAD_ABI libnthread_startup(const LibNThreadStartupOptions *options);
+LIBNTHREAD_API NError LIBNTHREAD_ABI libnthread_cleanup(void);
 
 /*
     #########################
@@ -133,12 +105,12 @@ typedef struct NThread NThread;
 
 typedef struct NThreadMutex NThreadMutex;
 
-LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_create(NThreadMutex **mutex);
-LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_destroy(NThreadMutex *mutex);
+LIBNTHREAD_API NError LIBNTHREAD_ABI nthread_mutex_create(NThreadMutex **mutex);
+LIBNTHREAD_API NError LIBNTHREAD_ABI nthread_mutex_destroy(NThreadMutex *mutex);
 
-LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_lock(NThreadMutex *mutex);
-LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_trylock(NThreadMutex *mutex);
-LIBNTHREAD_API NThreadError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mutex);
+LIBNTHREAD_API NError LIBNTHREAD_ABI nthread_mutex_lock(NThreadMutex *mutex);
+LIBNTHREAD_API NError LIBNTHREAD_ABI nthread_mutex_trylock(NThreadMutex *mutex);
+LIBNTHREAD_API NError LIBNTHREAD_ABI nthread_mutex_unlock(NThreadMutex *mutex);
 
 /*
     #########################

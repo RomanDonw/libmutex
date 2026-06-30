@@ -3,6 +3,6 @@
 
 #include "libnthread.h"
 
-#define ENSURE_INIT { if (!libnthread_initialized()) return NThreadError_NotInitialized; }
+#define ENSURE_INIT { if (!libnthread_initialized()) return NError_NotInitialized; }
 
 #endif
