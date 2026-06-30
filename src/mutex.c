@@ -6,29 +6,34 @@
 
 #include "libnthread.h"
 
-#ifndef LIBMUTEX_OS_WINDOWS
-    #include <errno.h>
-
-    #if defined(__USE_UNIX98) || defined(_XOPEN_SOURCE) && _XOPEN_SOURCE >= 500
-        #define PTHREAD_MUTEXTYPE_RECURSIVE PTHREAD_MUTEX_RECURSIVE
-    #else
-        #define PTHREAD_MUTEXTYPE_RECURSIVE PTHREAD_MUTEX_RECURSIVE_NP
-    #endif
-#endif
-
+#include "init.h"
 #include "util.h"
+#include "err.h"
 
-#define UNHANDLEDSYSERRALERT(syserrcode, funcname) LOGDBGERR("got unhandled system error %i in function '%s'", syserrcode, funcname)
+struct NThreadMutex { NTHREAD_MUTEXDESCRIPTOR desc; };
 
-struct mutex_s
+NError nthread_mutex_create(NThreadMutex **mutex)
 {
-    NTHREAD_MUTEXDESCRIPTOR desc;
+    ENSURE_INIT;
+
+    NThreadMutex *ret = allocs.malloc(sizeof(NThreadMutex));
+    if (!ret) return NError_MemoryAllocationFailed;
+
+    #ifdef LIBNTHREAD_OS_WINDOWS
+        InitializeCriticalSection(&ret->desc);
+    #else
+        NError nerr = translateerror(pthread_mutex_init(&ret->desc, &recursivemutexattr));
+        if (nerr != NError_Success) { allocs.free(ret); return nerr; }
+    #endif
+
+    *mutex = ret;
+    return NError_Success;
 }
 
-mutexerror_t mutex_create(mutex_t **mutex)
-{
-    if (!mutex) return MUTEXERROR_INVAL;
+#if 0
 
+NError mutex_create(NThreadMutex **mutex)
+{
     mutex_t *ret = libmutex_malloc(sizeof(mutex_t));
     if (!ret) return MUTEXERROR_NOMEM;
 
@@ -162,3 +167,5 @@ mutexerror_t mutex_unlock(mutex_t *mutex)
     #endif
     return MUTEXERROR_SUCCESS;
 }
+
+#endif

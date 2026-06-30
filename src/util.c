@@ -14,6 +14,10 @@ const char *LIBNTHREAD_MODULENAME = "libnthread";
 
 NMemoryAllocators __libnthread_allocators = {0};
 
+#ifndef LIBNTHREAD_OS_WINDOWS
+    pthread_mutexattr_t __libnthread_recursivemutexattr;
+#endif
+
 // =============================================================================
 
 void __libnthread_defaultpanichandler(const char *module, const char *file, long long line, const char *function, const char *description, NError error)

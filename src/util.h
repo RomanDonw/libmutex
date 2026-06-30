@@ -14,6 +14,11 @@
 extern NMemoryAllocators __libnthread_allocators;
 #define allocs __libnthread_allocators
 
+#ifndef LIBNTHREAD_OS_WINDOWS
+    extern pthread_mutexattr_t __libnthread_recursivemutexattr;
+    #define recursivemutexattr (__libnthread_recursivemutexattr)
+#endif
+
 // =============================================================================
 
 extern NPanicHandler *__libnthread_panichandler;
