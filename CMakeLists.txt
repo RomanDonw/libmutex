@@ -9,6 +9,10 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
+
+set(DEP_LIBNCORE_PACKAGENAME libncore)
+set(DEP_LIBNCORE_TARGETNAME ncore)
+set(DEP_LIBNCORE_REQMINVER 0.0.0)
 # ========== ======== ==========
 
 include(GNUInstallDirs)
@@ -35,6 +39,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
+
+find_package(${DEP_LIBNCORE_PACKAGENAME} ${DEP_LIBNCORE_REQMINVER} REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${DEP_LIBNCORE_PACKAGENAME}::${DEP_LIBNCORE_TARGETNAME})
 
 if(UNIX)
     target_compile_definitions(${PROJECT_NAME} PRIVATE _GNU_SOURCE _XOPEN_SOURCE=500)
