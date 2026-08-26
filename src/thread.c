@@ -100,6 +100,8 @@ NError nthread_join(NThread *thread, NThreadReturnType *exitcode)
     return nerr;
 }
 
+LIBNTHREAD_API NTHREAD_THREADDESCRIPTOR LIBNTHREAD_ABI nthread_gethandle(const NThread *thread) { return thread->desc; }
+
 /*
 void nthread_exit(NThreadReturnType exitcode)
 {
